@@ -9,6 +9,7 @@ import ru.kvesko.tik_tak_toe.api.model.exceptions.GameSessionFinishedException;
 import ru.kvesko.tik_tak_toe.api.model.exceptions.GameSessionNotFoundException;
 import ru.kvesko.tik_tak_toe.api.model.exceptions.NotYourTurnException;
 import ru.kvesko.tik_tak_toe.api.model.exceptions.SpaceIsNotEmptyException;
+import ru.kvesko.tik_tak_toe.api.model.exceptions.UnableToParseHeaderException;
 
 @ControllerAdvice
 @Slf4j
@@ -43,6 +44,14 @@ public class ExceptionHandlerAdvice {
         log.trace(e.getLocalizedMessage(), e);
         return ResponseEntity
                 .status(HttpStatus.NOT_ACCEPTABLE)
+                .body(e.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(UnableToParseHeaderException.class)
+    public ResponseEntity<String> handleException(final UnableToParseHeaderException e) {
+        log.trace(e.getLocalizedMessage(), e);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(e.getLocalizedMessage());
     }
 

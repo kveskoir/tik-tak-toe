@@ -1,6 +1,7 @@
 package ru.kvesko.tik_tak_toe.web.configs.auth;
 
 import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.kvesko.tik_tak_toe.api.model.context.PlayerInfo;
 import ru.kvesko.tik_tak_toe.api.model.context.PlayerInfoHolder;
+import ru.kvesko.tik_tak_toe.api.model.exceptions.UnableToParseHeaderException;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -26,8 +28,14 @@ public class PlayerInfoFilter extends OncePerRequestFilter {
             @Nonnull final HttpServletResponse response,
             @Nonnull final FilterChain chain
     ) throws IOException, ServletException {
-        final UUID sessionId = request.getHeader("sessionId") != null ?
-                UUID.fromString(request.getHeader("sessionId")) : null;
+        UUID sessionId = null;
+        try {
+            sessionId = request.getHeader("sessionId") != null ?
+                    UUID.fromString(request.getHeader("sessionId")) : null;
+        } catch (final Exception e) {
+            log.error("Unable to parse sessionId", e);
+            throw new UnableToParseHeaderException("sessionId", e);
+        }
 
         final int playerNumber = request.getHeader("playerNumber") !=
                                  null ? Integer.parseInt(request.getHeader("playerNumber")) : 0;
@@ -47,7 +55,7 @@ public class PlayerInfoFilter extends OncePerRequestFilter {
         }
     }
 
-    private PlayerInfo createPlayerInfo(final int playerNumber, final UUID sessionId) {
+    private PlayerInfo createPlayerInfo(final int playerNumber, @Nullable final UUID sessionId) {
         return new PlayerInfo(playerNumber, sessionId);
     }
 

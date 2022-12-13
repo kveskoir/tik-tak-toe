@@ -1,0 +1,6 @@
+server:
+  port: 9099
+
+redis:
+  host-name: redis
+  port: 6379
